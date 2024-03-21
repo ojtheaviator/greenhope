@@ -58,7 +58,7 @@ def receive_bytestring(bus):
 
 # Example usage
 if __name__ == "__main__":
-    sendOrRecieve = inputInt("Please choose one of the options:\n0: Send\n1:Recieve\n", [0, 1])    
+    sendOrRecieve = inputInt("Please choose one of the options:\n0: Send\n1: Recieve\n", [0, 1])    
 
     sendData = ""
     if sendOrRecieve == 0:
