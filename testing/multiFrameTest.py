@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 with open(filename, "r") as fid:
                     sendData = fid.read()
                 
-    with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
+    with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=1000000) as bus:
         
         if sendOrReceive == 0:
             sendObject(bus, sendData)
