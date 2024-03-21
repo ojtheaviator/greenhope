@@ -30,6 +30,7 @@ def send_bytestring(bus, bytestring, arbitration_id=0x000):
     chunks = split_bytestring(bytestring)
     
     lengthBytes = len(chunks).to_bytes(8, "big")
+    print(f"Sending {lengthBytes} Bytes now")
     message = can.Message(arbitration_id=arbitration_id, data=lengthBytes, is_extended_id=False)
     bus.send(message)
 
@@ -79,7 +80,7 @@ if __name__ == "__main__":
             #sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
             with open("texttest.txt", "r") as fid:
                 sendData = fid.read()
-
+                
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=1000000) as bus:
         
         if sendOrReceive == 0:
