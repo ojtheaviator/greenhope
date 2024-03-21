@@ -1,7 +1,7 @@
 import can
 import math
 import pickle
-
+import time
 
 # Improved integer input function
 def inputInt(message, intRange = []):
@@ -87,8 +87,9 @@ if __name__ == "__main__":
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
         
         if sendOrReceive == 0:
+            t1 = time.time()
             sendObject(bus, sendData)
-        
+            print(f"Time to send: {time.time() - t1} s")
         else:
             # Receive the bytestring
             received_data = receiveObject(bus)
