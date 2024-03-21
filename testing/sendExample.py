@@ -17,8 +17,8 @@ def send_can_message(channel='can0', message_id=0x123, obj=None):
     try:
         bus.send(msg)
         print("Message sent on {}".format(bus.channel_info))
-    except can.CanError:
-        print("Message failed to send")
+    except can.CanError as e:
+        print(f"Message failed to send: {e}")
 
 if __name__ == "__main__":
     obj_to_send = {'key': 'value', 'number': 42}  # Example Python object
