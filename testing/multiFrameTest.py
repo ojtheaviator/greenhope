@@ -49,8 +49,8 @@ def receive_my_id(bus, message_id=0x000, timeout=None):
 def receive_bytestring(bus):
     chunks = []
     
-    expected_chuncks_bytes = receive_my_id(bus)
-    expected_chuncks = int.from_bytes(expected_chuncks_bytes, "big")
+    expected_chunks_bytes = receive_my_id(bus)
+    expected_chunks = int.from_bytes(expected_chunks_bytes, "big")
 
     while len(chunks) < expected_chunks:
         message = receive_my_id(bus, timeout = 1)  # Block until a message is received
@@ -64,8 +64,9 @@ if __name__ == "__main__":
 
     sendData = ""
     if sendOrRecieve == 0:
-        sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
-        #sendData = input("Please enter text to send: ")
+        sendData = input("Enter text to send or leave blank to send default test: ")
+        if sendData == "":
+            sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
 
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
         
