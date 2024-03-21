@@ -36,9 +36,9 @@ def send_bytestring(bus, bytestring, arbitration_id=0x000):
     for chunk in chunks:
         message = can.Message(arbitration_id=arbitration_id, data=chunk, is_extended_id=False)
         bus.send(message)
-        print(f"Sent: {chunk.hex()}")
+        #print(f"Sent: {chunk.hex()}")
 
-# Improved recieve function
+# Improved receive function
 def receive_my_id(bus, message_id=0x000, timeout=None):
     while True:
         message = bus.recv(timeout)
@@ -55,30 +55,35 @@ def receive_bytestring(bus):
     while len(chunks) < expected_chunks:
         message = receive_my_id(bus, timeout = 1)  # Block until a message is received
         chunks.append(message.data)
-        print(f"Received: {message.data.hex()}")
+        #print(f"Received: {message.data.hex()}")
     return b''.join(chunks)
 
+
+def sendObject(bus, sendObject, message_id=0x000):
+    original_bytestring = pickle.dumps(sendObject)
+    send_bytestring(bus, original_bytestring, message_id)
+
+def receiveObject(bus, our_id=0x000):
+    received_bytestring = receive_bytestring(bus)
+    return(pickle.loads(received_bytestring))
+    
+    
 # Example usage
 if __name__ == "__main__":
-    sendOrRecieve = inputInt("Please choose one of the options:\n0: Send\n1: Recieve\n", [0, 1])    
+    sendOrReceive = inputInt("Please choose one of the options:\n0: Send\n1: Receive\n", [0, 1])    
 
     sendData = ""
-    if sendOrRecieve == 0:
+    if sendOrReceive == 0:
         sendData = input("Enter text to send or leave blank to send default test: ")
         if sendData == "":
             sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
 
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
         
-        if sendOrRecieve == 0:
-            # Example bytestring to send
-            original_bytestring = pickle.dumps(sendData)
-            
-            # Send the bytestring
-            send_bytestring(bus, original_bytestring)
+        if sendOrReceive == 0:
+            sendObject(sendData)
         
         else:
             # Receive the bytestring
-            received_bytestring = receive_bytestring(bus)
-            received_data = pickle.loads(received_bytestring)
+            received_data - receiveObject
             print(f"Complete received object: {received_data}")
