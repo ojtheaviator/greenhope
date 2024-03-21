@@ -77,7 +77,7 @@ if __name__ == "__main__":
         sendData = input("Enter text to send or leave blank to send default test: ")
         if sendData == "":
             #sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
-            with open("testtext.txt", "r") as fid:
+            with open("texttest.txt", "r") as fid:
                 sendData = fid.read()
 
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
