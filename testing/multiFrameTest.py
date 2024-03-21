@@ -29,7 +29,7 @@ def split_bytestring(bytestring, chunk_size=8):
 def send_bytestring(bus, bytestring, arbitration_id=0x000):
     chunks = split_bytestring(bytestring)
     
-    lengthBytes = len(chunks).to_bytes(8)
+    lengthBytes = len(chunks).to_bytes(8, "big")
     message = can.Message(arbitration_id=arbitration_id, data=lengthBytes, is_extended_id=False)
     bus.send(message)
 
@@ -50,7 +50,7 @@ def receive_bytestring(bus):
     chunks = []
     
     expected_chuncks_bytes = receive_my_id(bus)
-    expected_chuncks = int.from_bytes(expected_chuncks_bytes)
+    expected_chuncks = int.from_bytes(expected_chuncks_bytes, "big")
 
     while len(chunks) < expected_chunks:
         message = receive_my_id(bus, timeout = 1)  # Block until a message is received
