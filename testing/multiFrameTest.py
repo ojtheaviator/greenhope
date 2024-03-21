@@ -85,5 +85,5 @@ if __name__ == "__main__":
         
         else:
             # Receive the bytestring
-            received_data - receiveObject
+            received_data = receiveObject(bus)
             print(f"Complete received object: {received_data}")
