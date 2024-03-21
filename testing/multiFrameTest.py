@@ -12,6 +12,8 @@ def inputInt(message, intRange = []):
             out = int(input(message))
             if (len(intRange) == 2) and ((out < intRange[0]) or (out > intRange[1])):
                 print(f"Input out of bounds [{intRange[0]}, {intRange[1]}]")
+            else:
+                return(out)
         except ValueError:
             print("Invalid input. Please try again!")
 
