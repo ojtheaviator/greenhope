@@ -2,6 +2,7 @@ import can
 import math
 import pickle
 
+
 # Improved integer input function
 def inputInt(message, intRange = []):
     if (len(intRange) != 0) and (len(intRange) != 2):
