@@ -83,7 +83,7 @@ if __name__ == "__main__":
     with can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000) as bus:
         
         if sendOrReceive == 0:
-            sendObject(sendData)
+            sendObject(bus, sendData)
         
         else:
             # Receive the bytestring
