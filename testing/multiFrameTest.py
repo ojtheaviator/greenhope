@@ -78,7 +78,7 @@ if __name__ == "__main__":
         sendData = input("Enter text to send or leave blank to send default test: ")
         if sendData == "":
             filename = input("Enter filename of text file to send: ")
-            if fileanme == "":
+            if filename == "":
                 sendData = ["test stuff", 3.1415, ["cats", "bananas", -100.5]]
             else:
                 with open(filename, "r") as fid:
