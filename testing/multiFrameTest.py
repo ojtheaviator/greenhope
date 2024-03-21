@@ -30,7 +30,7 @@ def send_bytestring(bus, bytestring, arbitration_id=0x000):
     chunks = split_bytestring(bytestring)
     
     lengthBytes = len(chunks).to_bytes(8, "big")
-    print(f"Sending {len(chunks)} Bytes now")
+    print(f"Sending {len(chunks)*8} Bytes now")
     message = can.Message(arbitration_id=arbitration_id, data=lengthBytes, is_extended_id=False)
     bus.send(message)
 
