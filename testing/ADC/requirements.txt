@@ -1,0 +1,12 @@
+Libraries:
+    pip install Adafruit-Blinka
+    sudo pip3 install adafruit-circuitpython-mcp3xxx
+
+Be sure to use SPI1 rather than SPI0!
+* MCP CLK     = GPIO 21 (pin 40)
+* MCP DOUT    = GPIO 19 (pin 35)
+* MCP DIN     = GPIO 20 (pin 38)
+* MCP CS/SHDN = GPIO 18 (pin 12)
+
+Add this to /boot/config.txt:
+    dtoverlay=spi1-1cs
