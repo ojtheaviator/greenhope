@@ -1,7 +1,12 @@
-import random
+import asyncio
+import board
+import adafruit_ahtx0
 
-def getHum():
-    return(random.random() * 100)
+i2c = board.I2C()  # uses board.SCL and board.SDA
+sensor = adafruit_ahtx0.AHTx0(i2c)
 
-def getTemp():
-    return(random.uniform(-5, 35))
+async def getHum():
+    return(sensor.relative_humidity)
+
+async def getTemp():
+    return(sensor.temperature)

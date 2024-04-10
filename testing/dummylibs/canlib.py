@@ -14,6 +14,6 @@ class Can:
 
     def recieve(self, payload):
         while True:
-        await asyncio.sleep(0.001)
-        if (random.random() < 0.001):
-            print(f"fake CAN message recieved{silly()}")
+            #await asyncio.sleep(0.001)
+            if (random.random() < 0.001):
+                print(f"fake CAN message recieved{silly()}")
