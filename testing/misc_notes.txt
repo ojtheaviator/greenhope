@@ -1,0 +1,22 @@
+Parameters to store:
+For each box:
+* Temperature A, B, C ... (as many as we have temp sensors + 1 humidity)
+* Humidity
+* Fan condition (AI/ML)
+* Temperature setpoint
+
+For hub:
+* Water temperature
+* PH
+* EC
+* Water level
+
+  Feedback for heaters
+	Get CAN code in, figure out async receiving
+	Feedback for pH
+	
+	For SQL:
+		Heater on/off metric
+		Light on/off
+		Pumps on/off
+		
