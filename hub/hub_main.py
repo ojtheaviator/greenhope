@@ -4,7 +4,7 @@ import os
 import time
 import pymysql.cursors
 from statistics import mean
-import RPi.GPIO as GPIOimport RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 path1 = os.path.join('..', 'libs')
 path2 = os.path.abspath(path1)
@@ -19,7 +19,7 @@ import outputs
 GPIO.setmode(GPIO.BCM)
 
 ## Credential
-HOST = '127.1.1.0' # MySQL server host DNS
+HOST = 'localhost' # MySQL server host DNS
 PORT = 3306 # MySQL server port number
 USER = 'greenhope' # MySQL account name
 PASSWORD = 'Nahwals1234' # Password of the account
@@ -95,7 +95,7 @@ async def main():
     outs = outputs.Hub()
     lock = asyncio.Lock()
     tasks = [
-        asyncio.create_task(transmit(lock, cb, cursor, 1)),
+        asyncio.create_task(receive(lock, cb, cursor)),
         asyncio.create_task(collect_temp(lock, outs, cursor, 0.5)),
         asyncio.create_task(collect_pH(lock, outs, cursor, 1))
     ]
