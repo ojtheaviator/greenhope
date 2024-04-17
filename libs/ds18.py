@@ -23,7 +23,7 @@ async def read_temp_raw():
     return all_lines
 
 async def read_temp():
-    lines = await read_temp_raw()
+    all_lines = await read_temp_raw()
     temps = []
     for lines in all_lines:
         while lines[0].strip()[-3:] != 'YES':
