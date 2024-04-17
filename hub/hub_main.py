@@ -4,6 +4,7 @@ import os
 import time
 import pymysql.cursors
 from statistics import mean
+import RPi.GPIO as GPIOimport RPi.GPIO as GPIO
 
 path1 = os.path.join('..', 'libs')
 path2 = os.path.abspath(path1)
@@ -15,13 +16,15 @@ import ds18
 import outputs
 #import fan
 
+GPIO.setmode(GPIO.BCM)
+
 ## Credential
 HOST = '127.1.1.0' # MySQL server host DNS
 PORT = 3306 # MySQL server port number
-USER = 'yourname' # MySQL account name
-PASSWORD = 'password' # Password of the account
-DB = 'databasename' # DB name
-TABLE = 'tablename' # table name
+USER = 'greenhope' # MySQL account name
+PASSWORD = 'Nahwals1234' # Password of the account
+DB = 'greenhope' # DB name
+TABLE = 'prototype' # table name
 ## Credential
 
 
