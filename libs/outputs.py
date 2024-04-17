@@ -5,13 +5,13 @@ import asyncio
 
 class Hub:
     def __init__(self):
-        self.phpPin = 29
-        self.phmPin = 31
-        self.heatPin = 33
-        self.lightPin = 11
-        self.pumpPin = 13
+        self.phpPin = 5 #29
+        self.phmPin = 6 #31
+        self.heatPin = 13 #33
+        self.lightPin = 17 #11
+        self.pumpPin = 27 #13
         
-        GPIO.setmode(GPIO.BOARD)
+#        GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.phpPin, GPIO.OUT)
         GPIO.setup(self.phmPin, GPIO.OUT)
         GPIO.setup(self.heatPin, GPIO.OUT)
@@ -56,18 +56,21 @@ class Hub:
 
 class Module:
     def __init__(self, initialDutyCycle=100):
-        self.heataPin = 29
-        self.heatbPin = 31
-        self.fanPin = 33
+        self.heataPin = 5 #29
+        self.heatbPin = 6 #31
+        self.fanPin = 13 #33
         
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(heataPin, GPIO.OUT)
-        GPIO.setup(heatbPin, GPIO.OUT)
-        GPIO.setup(fanPin, GPIO.OUT)
+#        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(self.heataPin, GPIO.OUT)
+        GPIO.setup(self.heatbPin, GPIO.OUT)
+        GPIO.setup(self.fanPin, GPIO.OUT)
         
         self.fan = GPIO.PWM(self.fanPin, 25000)
         self.fan.start(initialDutyCycle)
-    
+        
+        self.heataOn(False)
+        self.heatbOn(False)
+
     def __del__(self):
         GPIO.cleanup()
     

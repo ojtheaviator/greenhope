@@ -3,6 +3,7 @@ import sys
 import os
 import time
 from statistics import mean
+import RPi.GPIO as GPIO
 
 path1 = os.path.join('..', 'libs')
 path2 = os.path.abspath(path1)
@@ -13,6 +14,8 @@ import canlib as can
 import ds18
 import outputs
 #import fan
+
+GPIO.setmode(GPIO.BCM)
 
 heaterOnTemp = 60
 heaterOffTemp = 70
@@ -68,7 +71,7 @@ async def main():
     lock = asyncio.Lock()
     tasks = [
         asyncio.create_task(transmit(lock, cb, currentData, 1)),
-        asyncio.create_task(collect_temp(lock, outs currentData, 0.5)),
+        asyncio.create_task(collect_temp(lock, outs, currentData, 0.5)),
         asyncio.create_task(collect_hum(lock, currentData, 1))
     ]
     try:
