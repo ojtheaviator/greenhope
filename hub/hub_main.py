@@ -40,7 +40,7 @@ def querygen(timestamp, sensor, measurement, value):
 
 async def receive(lock, canbus, cursor):
     while True:
-        data = canbus.receive()
+        data = await canbus.receive()
         for key in data:
             for datapoint in data[key]:
                 sensor = {"temp":"DS18B20", "hum":"AHT20", "fan":"model", "heaterA":"command", "heaterB":"command"}[key]
