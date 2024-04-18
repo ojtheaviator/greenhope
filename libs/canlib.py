@@ -34,11 +34,13 @@ class Can:
         lengthBytes = len(chunks).to_bytes(8, "big")
         #print(f"Sending {len(chunks)*8} Bytes now")
         message = can.Message(arbitration_id=arbitration_id, data=lengthBytes, is_extended_id=False)
-        self.bus.send(message)
-
-        for chunk in chunks:
-            message = can.Message(arbitration_id=arbitration_id, data=chunk, is_extended_id=False)
+        try:
             self.bus.send(message)
+            for chunk in chunks:
+                message = can.Message(arbitration_id=arbitration_id, data=chunk, is_extended_id=False)
+                self.bus.send(message)
+        except can.CanOperationError as e:
+            print(e)
 
     # Improved receive function
     def receive_my_id(self, timeout=None):

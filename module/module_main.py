@@ -1,7 +1,7 @@
 import asyncio
 import sys
 import os
-import time
+import datetime
 from statistics import mean
 import RPi.GPIO as GPIO
 
@@ -30,38 +30,43 @@ def datareset(data):
 
 async def transmit(lock, canbus, data, period):
     while True:
+        print("transmitting data...")
         async with lock:
             canbus.transmit(data)
             datareset(data)
+        print("data transmitted")
         await asyncio.sleep(period)
 
 async def collect_temp(lock, outs, data, period):
     while True:
         #Read temps
+        print("reading temps..")
         temp = await ds18.read_temp()
         async with lock:
-            data["temp"].append((time.strftime('%Y-%m-%d %H:%M:%S'), temp))
-        
+            data["temp"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), temp))
+        print("temps set")
         #Set heaters
         if mean(temp) < heaterOnTemp:
             outs.heataOn(True)
             outs.heatbOn(True)
-            data["heaterA"].append((time.strftime('%Y-%m-%d %H:%M:%S'), "on"))
-            data["heaterB"].append((time.strftime('%Y-%m-%d %H:%M:%S'), "on"))
+            data["heaterA"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "on"))
+            data["heaterB"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "on"))
         if mean(temp) > heaterOffTemp:
             outs.heataOn(False)
             outs.heatbOn(False)
-            data["heaterA"].append((time.strftime('%Y-%m-%d %H:%M:%S'), "off"))
-            data["heaterB"].append((time.strftime('%Y-%m-%d %H:%M:%S'), "off"))
+            data["heaterA"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "off"))
+            data["heaterB"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "off"))
         
         #Wait for next cycle
         await asyncio.sleep(period)
 
 async def collect_hum(lock, data, period):
     while True:
+        print("collecting humidity...")
         hum = await aht20.getHum()
         async with lock:
-            data["hum"].append((time.strftime('%Y-%m-%d %H:%M:%S'), hum))
+            data["hum"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), hum))
+        print("humidity collected")
         await asyncio.sleep(period)
 
 async def main():
@@ -70,9 +75,9 @@ async def main():
     outs = outputs.Module(initialDutyCycle=50)
     lock = asyncio.Lock()
     tasks = [
-        asyncio.create_task(transmit(lock, cb, currentData, 1)),
-        asyncio.create_task(collect_temp(lock, outs, currentData, 0.5)),
-        asyncio.create_task(collect_hum(lock, currentData, 1))
+        asyncio.create_task(transmit(lock, cb, currentData, 5)),
+        asyncio.create_task(collect_temp(lock, outs, currentData, 5)),
+        asyncio.create_task(collect_hum(lock, currentData, 5))
     ]
     try:
         await asyncio.gather(*tasks)
