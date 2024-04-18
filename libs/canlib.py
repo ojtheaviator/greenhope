@@ -10,14 +10,17 @@ import time
 class Can:
     # constructor
     def __init__(self, my_id):
+        print("CAN: initializing")
         # initializing instance variable
         self.my_id = my_id
         self.bus = can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000)
     
     def close(self):
+        print("CAN: closing")
         self.bus.shutdown()
     
     def __del__(self):
+        print("CAN: shutting down")
         self.bus.shutdown()
 
     # Function to split the bytestring into 8-byte chunks
@@ -29,6 +32,7 @@ class Can:
 
     # Function to send a bytestring over CAN
     def send_bytestring(self, bytestring, arbitration_id=0x000):
+        print("CAN: sending bytestring")
         chunks = self.split_bytestring(bytestring)
         
         lengthBytes = len(chunks).to_bytes(8, "big")
@@ -39,6 +43,7 @@ class Can:
             for chunk in chunks:
                 message = can.Message(arbitration_id=arbitration_id, data=chunk, is_extended_id=False)
                 self.bus.send(message)
+            print("CAN: bytestring sent")
         except can.CanOperationError as e:
             print(e)
 
@@ -73,7 +78,9 @@ class Can:
     async def receive(self):
         while True:
             try:
+                print("CAN: listening for message...")
                 received_bytestring = await self.receive_bytestring()
+                print("CAN: message recieved, decoding")
                 return(pickle.loads(received_bytestring))
             except ValueError:
                 print("\nWARN: Ooops, CAN message didn't get delivered properly. Probably no big deal, will wait for next message\n")
