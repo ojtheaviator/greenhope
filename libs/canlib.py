@@ -68,6 +68,6 @@ class Can:
         original_bytestring = pickle.dumps(payload)
         self.send_bytestring(original_bytestring, message_id)
 
-    def receive(self):
-        received_bytestring = self.receive_bytestring()
+    async def receive(self):
+        received_bytestring = await self.receive_bytestring()
         return(pickle.loads(received_bytestring))

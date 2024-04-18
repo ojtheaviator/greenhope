@@ -16,6 +16,8 @@ import ds18
 import outputs
 #import fan
 
+print("Imports done!")
+
 GPIO.setmode(GPIO.BCM)
 
 ## Credential
@@ -38,9 +40,10 @@ phHigh = 8
 def querygen(timestamp, sensor, measurement, value):
     return f"INSERT INTO {TABLE} (timestamp,sensor,measurement,value) VALUE('{timestamp}','{sensor}','{measurement}','{value}');"
 
-async def receive(lock, canbus, cursor):
+async def receive(lock, canbus, cursor, connection):
     while True:
         data = await canbus.receive()
+        print("CAN message received")
         for key in data:
             for datapoint in data[key]:
                 sensor = {"temp":"DS18B20", "hum":"AHT20", "fan":"model", "heaterA":"command", "heaterB":"command"}[key]
@@ -52,12 +55,13 @@ async def receive(lock, canbus, cursor):
                         cursor.execute(querygen(timestamp, sensor, f"{measurement}_{i+1}", point))
                 else:
                     cursor.execute(querygen(timestamp, sensor, measurement, points))
-        cursor.commit()
+        connection.commit()
 
-async def collect_temp(lock, outs, cursor, period):
+async def collect_temp(lock, outs, cursor, connection, period):
     while True:
         #Read temps
         temp = await ds18.read_temp()
+        print("temps gotten")
         cursor.execute(querygen(time.strftime('%Y-%m-%d %H:%M:%S'), "DS18B20", "water_temperature", temp))
         
         #Set heaters
@@ -69,36 +73,52 @@ async def collect_temp(lock, outs, cursor, period):
             cursor.execute(querygen(time.strftime('%Y-%m-%d %H:%M:%S'), "command", "water_heater_state", "off"))
         
         #Send SQL
-        cursor.commit()
+        connection.commit()
         
         #Wait for next cycle
         await asyncio.sleep(period)
 
-async def collect_pH(lock, outs, cursor, period, settlesleep=10):
+async def collect_pH(lock, outs, cursor, connection, period, settlesleep=10):
     while True:
         ph = adc.getPh()
+        print(f"ph gotten: indicated {ph}")
         cursor.execute(querygen(time.strftime('%Y-%m-%d %H:%M:%S'), "ADC", "pH_reading", ph))
-        cursor.commit()
+        print("query queued")
+        connection.commit()
+        print("query committed")
+        '''
         if ph > phHigh:
             outs.phDown()
             await asyncio.sleep(settlesleep)
         if ph < phLow:
             outs.phUp()
             await asyncio.sleep(settlesleep)
+        '''
         await asyncio.sleep(period)
 
 async def main():
+    print("main starting")
     connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB, port=PORT) # make a connection to MySQL server
-    cursor = connection.cursor() # Open cursur to execute SQL query
     
+    print("Complete: connected to SQL database")
+
+    cursor = connection.cursor() # Open cursur to execute SQL query
+
     cb = can.Can(0x000) #cb = CAN bus
+    
+    print("Complete: set up canbus")
+
     outs = outputs.Hub()
+
+    print("Complete: set up outputs")
+
     lock = asyncio.Lock()
     tasks = [
-        asyncio.create_task(receive(lock, cb, cursor)),
-        asyncio.create_task(collect_temp(lock, outs, cursor, 0.5)),
-        asyncio.create_task(collect_pH(lock, outs, cursor, 1))
+        asyncio.create_task(receive(lock, cb, cursor, connection)),
+        asyncio.create_task(collect_temp(lock, outs, cursor, connection, 0.5)),
+        asyncio.create_task(collect_pH(lock, outs, cursor, connection, 1))
     ]
+    print("Gathering tasks...")
     try:
         await asyncio.gather(*tasks)
     except KeyboardInterrupt:

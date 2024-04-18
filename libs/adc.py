@@ -23,12 +23,12 @@ liqlev1Chan = AnalogIn(mcp, MCP.P5)
 liqlev2Chan = AnalogIn(mcp, MCP.P6)
 liqlev3Chan = AnalogIn(mcp, MCP.P7)
 
-def getPH():
+def getPh():
     #calibration/calculation from voltage below
     scaler = 4.2
     offset = 0
     
-    return(phChan.voltage * scalar + offset)
+    return(phChan.voltage * scaler + offset)
 
 def getLev():
     if liqlev1Chan.voltage > 1.6:
