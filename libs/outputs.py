@@ -5,11 +5,11 @@ import asyncio
 
 class Hub:
     def __init__(self):
-        self.phpPin = 5 #29
-        self.phmPin = 6 #31
-        self.heatPin = 13 #33
-        self.lightPin = 17 #11
-        self.pumpPin = 27 #13
+        self.phpPin = 27 #13 
+        self.phmPin = 17 #11
+        self.heatPin = 6 #31
+        self.lightPin = 5 #29
+        self.pumpPin = 13 #33
         
 #        GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.phpPin, GPIO.OUT)

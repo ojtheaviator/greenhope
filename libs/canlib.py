@@ -48,7 +48,7 @@ class Can:
                 return(message)
 
     # Function to receive bytestrings over CAN
-    async def receive_bytestring(self):
+    async def receive_bytestring(self, timeout=0.1):
         loop = asyncio.get_event_loop()
         first_message = await loop.run_in_executor(None, self.receive_my_id)
         expected_chunks = int.from_bytes(first_message.data, "big")
@@ -56,7 +56,9 @@ class Can:
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
             while len(chunks) < expected_chunks:
-                message = await loop.run_in_executor(pool, self.receive_my_id)
+                message = await loop.run_in_executor(pool, lambda: self.receive_my_id(timeout))
+                if not message:
+                    raise ValueError('Incomplete CAN message')
                 chunks.append(message.data)
 
         return b''.join(chunks)
@@ -67,5 +69,11 @@ class Can:
         self.send_bytestring(original_bytestring, message_id)
 
     async def receive(self):
-        received_bytestring = await self.receive_bytestring()
-        return(pickle.loads(received_bytestring))
+        while True:
+            try:
+                received_bytestring = await self.receive_bytestring()
+                return(pickle.loads(received_bytestring))
+            except ValueError:
+                print("\nWARN: Ooops, CAN message didn't get delivered properly. Probably no big deal, will wait for next message\n")
+            except pickle.UnpicklingError:
+                print("\nWARN: Huh, weird, unpickling error but no timeout. At any rate, we're waiting for next message now\n")
