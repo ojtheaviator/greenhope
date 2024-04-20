@@ -4,9 +4,11 @@ import socketserver
 from http import server
 from threading import Condition
 
-from picamera2 import Picamera2
+from picamera2 import Picamera2, controls
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
+
+from libcamera import Transform
 
 # HTML page for the MJPEG streaming demo
 PAGE = """\
@@ -81,9 +83,27 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
-# Create Picamera2 instance and configure it
+# Create Picamera2 instance
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+
+tfrm = Transform(hflip=1, vflip=1)
+
+# Set up the camera configuration for video with specific modifications
+config = picam2.create_video_configuration(main={"size": (640, 480)}, transform = tfrm)
+
+# Set exposure mode (e.g., 'auto', 'night', 'backlight')
+# Set metering mode (e.g., 'average', 'spot', 'matrix')
+# Adjust contrast (range typically -100 to 100, check documentation)
+picam2.set_controls({
+    #"Saturation": 0,
+    "AwbEnable": True#,
+    #"vertical_flip": True,
+    #"horizontal_flip": True
+})
+
+# Apply the configuration
+picam2.configure(config)
+
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 
