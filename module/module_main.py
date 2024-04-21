@@ -13,7 +13,7 @@ import aht20
 import canlib as can
 import ds18
 import outputs
-#import fan
+import accel
 
 GPIO.setmode(GPIO.BCM)
 
@@ -72,6 +72,13 @@ async def collect_hum(lock, data, period):
             data["hum"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), hum))
         print("humidity collected")
         await asyncio.sleep(period)
+        
+async def collect_accel(lock, data, period):
+    while True:
+        acc = await accel.getAccel()
+        async with lock:
+            data["fan"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), acc))
+        await asyncio.sleep(period)
 
 async def main():
     currentData = datainit()
@@ -80,8 +87,9 @@ async def main():
     lock = asyncio.Lock()
     tasks = [
         asyncio.create_task(transmit(lock, cb, currentData, 30)),
-        asyncio.create_task(collect_temp(lock, outs, currentData, 60)),
-        asyncio.create_task(collect_hum(lock, currentData, 30))
+        asyncio.create_task(collect_temp(lock, outs, currentData, 20)),
+        asyncio.create_task(collect_hum(lock, currentData, 30),
+        asyncio.create_task(collect_accel(lock, currentData, 60))
     ]
     try:
         await asyncio.gather(*tasks)
