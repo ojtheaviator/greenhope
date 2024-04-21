@@ -31,17 +31,28 @@ class Can:
         return [bytestring[i * chunk_size:(i + 1) * chunk_size] for i in range(n_chunks)]
 
     # Function to send a bytestring over CAN
-    def send_bytestring(self, bytestring, arbitration_id=0x000):
+    def send_bytestring(self, bytestring, arbitration_id=0x000, message_id=0):
+        message_id = message_id%64
         print("CAN: sending bytestring")
-        chunks = self.split_bytestring(bytestring)
-        
-        lengthBytes = len(chunks).to_bytes(8, "big")
-        #print(f"Sending {len(chunks)*8} Bytes now")
-        message = can.Message(arbitration_id=arbitration_id, data=lengthBytes, is_extended_id=False)
+        chunks = self.split_bytestring(bytestring, 7)  # Payload size reduced to 7
+        num_chunks = len(chunks)
         try:
-            self.bus.send(message)
-            for chunk in chunks:
-                message = can.Message(arbitration_id=arbitration_id, data=chunk, is_extended_id=False)
+            for i, chunk in enumerate(chunks):
+                # Prepare the flag byte
+                if i == 0:
+                    flag = 0x00  # Start chunk
+                elif i == num_chunks - 1:
+                    flag = 0xC0  # End chunk
+                else:
+                    flag = 0x40  # Middle chunk
+
+                # Apply message ID within the flag byte
+                flag |= message_id & 0x3F
+
+                # Append flag byte to chunk
+                full_chunk = chunk + bytes([flag])
+
+                message = can.Message(arbitration_id=arbitration_id, data=full_chunk, is_extended_id=False)
                 self.bus.send(message)
             print("CAN: bytestring sent")
         except can.CanOperationError as e:
@@ -55,25 +66,40 @@ class Can:
                 return(message)
 
     # Function to receive bytestrings over CAN
-    async def receive_bytestring(self, timeout=0.1):
+    async def receive_bytestring(self, timeout=1):
         loop = asyncio.get_event_loop()
-        first_message = await loop.run_in_executor(None, self.receive_my_id)
-        expected_chunks = int.from_bytes(first_message.data, "big")
         chunks = []
+        current_message_id = None
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            while len(chunks) < expected_chunks:
+            while True:
                 message = await loop.run_in_executor(pool, lambda: self.receive_my_id(timeout))
                 if not message:
                     raise ValueError('Incomplete CAN message')
-                chunks.append(message.data)
+
+                data = message.data[:-1]  # Payload
+                flag_byte = message.data[-1]
+                msg_id = flag_byte & 0x3F
+                msg_type = flag_byte & 0xC0
+
+                if msg_type == 0x00:  # Start chunk
+                    chunks = [data]
+                    current_message_id = msg_id
+                elif msg_id == current_message_id:
+                    if msg_type == 0xC0:  # End chunk
+                        chunks.append(data)
+                        break
+                    elif msg_type == 0x40:  # Middle chunk
+                        chunks.append(data)
+                    else:
+                        raise ValueError(f'Received chunk with unexpected flags or mismatched message ID. Flag: {flag_byte:#04x}, Expected ID: {current_message_id}, Received ID: {msg_id}')
 
         return b''.join(chunks)
 
 
-    def transmit(self, payload, message_id=0x000):
+    def transmit(self, payload, message_id=0x000, new_id=0):
         original_bytestring = pickle.dumps(payload)
-        self.send_bytestring(original_bytestring, message_id)
+        self.send_bytestring(original_bytestring, message_id, new_id)
 
     async def receive(self):
         while True:
@@ -82,7 +108,7 @@ class Can:
                 received_bytestring = await self.receive_bytestring()
                 print("CAN: message recieved, decoding")
                 return(pickle.loads(received_bytestring))
-            except ValueError:
-                print("\nWARN: Ooops, CAN message didn't get delivered properly. Probably no big deal, will wait for next message\n")
+            except ValueError as e:
+                print(f"\nWARN: {e}\n")
             except pickle.UnpicklingError:
                 print("\nWARN: Huh, weird, unpickling error but no timeout. At any rate, we're waiting for next message now\n")

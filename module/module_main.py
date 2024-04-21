@@ -20,6 +20,8 @@ GPIO.setmode(GPIO.BCM)
 heaterOnTemp = 60
 heaterOffTemp = 70
 
+next_can_id = 0
+
 def datainit():
     return({"temp":[], "hum":[], "fan":[], "heaterA":[], "heaterB":[]})
 def datareset(data):
@@ -32,7 +34,9 @@ async def transmit(lock, canbus, data, period):
     while True:
         print("transmitting data...")
         async with lock:
-            canbus.transmit(data)
+            canbus.transmit(data, new_id=next_can_id)
+            next_can_id += 1
+            next_can_id % 64
             datareset(data)
         print("data transmitted")
         await asyncio.sleep(period)
