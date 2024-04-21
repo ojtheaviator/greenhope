@@ -31,12 +31,12 @@ def datareset(data):
         data[key] = []
 
 async def transmit(lock, canbus, data, period):
+    global next_can_id
     while True:
         print("transmitting data...")
         async with lock:
             canbus.transmit(data, new_id=next_can_id)
-            next_can_id += 1
-            next_can_id % 64
+            next_can_id = (next_can_id + 1) % 64
             datareset(data)
         print("data transmitted")
         await asyncio.sleep(period)
