@@ -40,6 +40,9 @@ phHigh = 8
 def querygen(timestamp, sensor, measurement, value):
     return f"INSERT INTO {TABLE} (timestamp,sensor,measurement,value) VALUE('{timestamp}','{sensor}','{measurement}','{value}');"
 
+async def translateFan(fanData):
+    return False
+
 async def receive(lock, canbus, cursor, connection):
     while True:
         data = await canbus.receive()
@@ -53,6 +56,9 @@ async def receive(lock, canbus, cursor, connection):
                 if key == "temp":
                     for i, point in enumerate(points):
                         cursor.execute(querygen(timestamp, sensor, f"{measurement}_{i+1}", point))
+                elif key == "fan":
+                    fanstat = await translateFan(points):
+                    cursor.execute(querygen(timestamp, sensor, f"{measurement}_{i+1}", fanstat))
                 else:
                     cursor.execute(querygen(timestamp, sensor, measurement, points))
         connection.commit()

@@ -19,9 +19,9 @@ mcp = MCP.MCP3008(spi, cs)
 # create an analog input channel on pin 0
 phChan = AnalogIn(mcp, MCP.P0)
 
-liqlev1Chan = AnalogIn(mcp, MCP.P5)
-liqlev2Chan = AnalogIn(mcp, MCP.P6)
-liqlev3Chan = AnalogIn(mcp, MCP.P7)
+liqlev1Chan = AnalogIn(mcp, MCP.P6) #lowest sensor
+liqlev2Chan = AnalogIn(mcp, MCP.P5)
+liqlev3Chan = AnalogIn(mcp, MCP.P7) #highest sensor
 
 def getPh():
     print("ADC: getting ph")
@@ -32,7 +32,7 @@ def getPh():
 
 def getLev():
     print("ADC: getting liquid level")
-    if liqlev1Chan.voltage > 1.6:
+    if liqlev3Chan.voltage > 1.6:
         return(3)
     elif liqlev2Chan.voltage > 1.6:
         return(2)
