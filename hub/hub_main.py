@@ -65,12 +65,12 @@ async def collect_temp(lock, outs, cursor, connection, period):
         cursor.execute(querygen(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "DS18B20", "water_temperature", mean(temp)))
         
         #Set heaters
-        if mean(temp) < heaterOnTemp:
+        '''if mean(temp) < heaterOnTemp:
             outs.heatOn(True)
             cursor.execute(querygen(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "command", "water_heater_state", "on"))
         if mean(temp) > heaterOffTemp:
             outs.heatOn(False)
-            cursor.execute(querygen(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "command", "water_heater_state", "off"))
+            cursor.execute(querygen(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), "command", "water_heater_state", "off"))'''
         
         #Send SQL
         connection.commit()
