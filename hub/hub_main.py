@@ -59,7 +59,7 @@ async def receive(lock, canbus, cursor, connection):
                 elif key == "fan":
                     #print(f'\n\n{points}\n\n')
                     fanstat = await translateFan(points)
-                    cursor.execute(querygen(timestamp, sensor, f"{measurement}_{i+1}", fanstat))
+                    cursor.execute(querygen(timestamp, sensor, f"{measurement}", fanstat))
                 else:
                     cursor.execute(querygen(timestamp, sensor, measurement, points))
         connection.commit()
