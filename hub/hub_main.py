@@ -14,7 +14,7 @@ import adc
 import canlib as can
 import ds18
 import outputs
-#import fan
+import fan_ml as fml
 
 print("Imports done!")
 
@@ -41,7 +41,7 @@ def querygen(timestamp, sensor, measurement, value):
     return f"INSERT INTO {TABLE} (timestamp,sensor,measurement,value) VALUE('{timestamp}','{sensor}','{measurement}','{value}');"
 
 async def translateFan(fanData):
-    return False
+    return ("off" if bool(fml.fanAnalysis(fanData)) else "on")
 
 async def receive(lock, canbus, cursor, connection):
     while True:

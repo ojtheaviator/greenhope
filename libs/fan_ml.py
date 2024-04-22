@@ -2,37 +2,70 @@
 import numpy as np
 import scipy.stats as sp
 import pywt
+import tflite_runtime.interpreter as tflite
+
+
+def rms(data):
+    return np.sqrt(np.mean(data**2))
+
 
 def extract_features(data):
     # Assuming data is a list of three lists: [mx, my, mz]
-    mx, my, mz = data
+    dataarr = np.asarray(data)
+    mx = dataarr[:, 0]
+    my = dataarr[:, 1]
+    mz = dataarr[:, 2]
     
-    # Define mother wavelet and level
+    # Define the mother wavelet and the maximum decomposition level
     MotherWavelet = pywt.Wavelet('haar')
-    Level = 8
+    Level = 2  # Adjust based on your wavelet decomposition level needs
 
+    # Decompose signals
+    coef_mx = pywt.wavedec(mx, MotherWavelet, level=Level)
+    coef_my = pywt.wavedec(my, MotherWavelet, level=Level)
+    coef_mz = pywt.wavedec(mz, MotherWavelet, level=Level)
+
+    # Features list
     features = []
 
-    # Feature extraction for each sensor (mx, my, mz)
-    for sensor_data in (mx, my, mz):
-        coef = pywt.wavedec(sensor_data, MotherWavelet, level=Level, axis=0)
-        
-        # Extract features from the wavelet coefficients
-        for level in range(Level):
-            c = coef[level]
-            features.extend([
-                np.min(c),  # Min
-                np.max(c),  # Max
-                np.mean(c),  # Mean
-                np.sqrt(np.mean(c**2)),  # RMS
-                np.var(c),  # Variance
-                sp.skew(c),  # Skewness
-                sp.kurtosis(c)  # Kurtosis
-            ])
+    # Frequency domain features in requested order
+    # my, mz, my, my, mz, mz, mx, mx, mx, my, mz, my, mz, mx, my, mx, mz, my, mx, my, mz, mz, my, mz, mx, my, mz
+    features.append(np.min(coef_my[0]))
+    features.append(np.min(coef_mz[0]))
+    features.append(np.max(coef_my[0]))
+    features.append(rms(coef_my[0]))
+    features.append(rms(coef_mz[0]))
+    features.append(np.max(coef_mz[0]))
+    features.append(rms(coef_mx[0]))
+    features.append(np.max(coef_mx[0]))
+    features.append(np.min(coef_mx[0]))
+    features.append(rms(coef_my[1]))
+    features.append(rms(coef_mz[1]))
+    features.append(np.var(coef_my[0]))
+    features.append(np.var(coef_mz[0]))
+    features.append(np.var(my))  # Time domain var my
+    features.append(rms(coef_mx[1]))
+    features.append(np.var(coef_mx[0]))
+    features.append(np.min(coef_mx[1]))
+    features.append(rms(mx) / np.mean(np.abs(mx)))  # Time domain rms/mean mx
+    features.append(np.max(coef_my[1]))
+    features.append(np.max(coef_mx[1]))
+    features.append(np.var(coef_my[1]))
+    features.append(np.var(coef_mz[1]))
+    features.append(np.max(coef_mz[1]))
+    features.append(np.min(coef_my[1]))
+    features.append(np.min(coef_mz[1]))
+    features.append(np.var(coef_mx[1]))
+    features.append(rms(coef_my[2]))
+    features.append(np.var(mz))  # Time domain var mz
+    features.append(rms(mz) / np.mean(np.abs(mz)))  # Time domain rms/mean mz
+    features.append(rms(coef_mz[2]))
+
+    return features
             
 def load_tflite_model(file_path):
     # Load TFLite model and allocate tensors.
-    interpreter = tf.lite.Interpreter(model_path=file_path)
+    interpreter = tflite.Interpreter(model_path=file_path)
     interpreter.allocate_tensors()
     return interpreter
 
@@ -52,7 +85,6 @@ def predict(interpreter, input_data):
 
     # Extract the output
     output_data = interpreter.get_tensor(output_details[0]['index'])
-    return output_data
     
     predicted_class = np.argmax(output_data)
     
