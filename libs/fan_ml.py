@@ -4,6 +4,11 @@ import scipy.stats as sp
 import pywt
 import tflite_runtime.interpreter as tflite
 
+def savefile(data, filename="fandatasave.csv"):
+    with open(filename, "a") as fid:
+        for dat in data:
+            fid.write(f'{dat}, ')
+        fid.write('\n')
 
 def rms(data):
     return np.sqrt(np.mean(data**2))
@@ -60,6 +65,8 @@ def extract_features(data):
     features.append(np.var(mz))  # Time domain var mz
     features.append(rms(mz) / np.mean(np.abs(mz)))  # Time domain rms/mean mz
     features.append(rms(coef_mz[2]))
+
+    savefile(features)
 
     return features
             
