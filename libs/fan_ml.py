@@ -66,7 +66,7 @@ def extract_features(data):
     features.append(rms(mz) / np.mean(np.abs(mz)))  # Time domain rms/mean mz
     features.append(rms(coef_mz[2]))
 
-    savefile(features)
+    #savefile(features)
 
     return features
             
