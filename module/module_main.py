@@ -91,7 +91,7 @@ async def main():
         asyncio.create_task(transmit(lock, cb, currentData, 30)),
         asyncio.create_task(collect_temp(lock, outs, currentData, 20)),
         asyncio.create_task(collect_hum(lock, currentData, 30)),
-        asyncio.create_task(collect_accel(lock, currentData, 30))
+        asyncio.create_task(collect_accel(lock, currentData, 10))
     ]
     try:
         await asyncio.gather(*tasks)
