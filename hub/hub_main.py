@@ -145,7 +145,7 @@ async def main():
     lock = asyncio.Lock()
     tasks = [
         asyncio.create_task(receive(lock, cb, cursor, connection)),
-        asyncio.create_task(collect_temp(lock, outs, cursor, connection, 30)),
+        #asyncio.create_task(collect_temp(lock, outs, cursor, connection, 30)),
         asyncio.create_task(collect_pH(lock, outs, cursor, connection, 100)),
         asyncio.create_task(lightcontrol(outs, (8, 5), (0, 21)))
     ]
