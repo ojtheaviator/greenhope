@@ -21,9 +21,9 @@ else
     exit
 fi
 
-echo "ensuring Pi is up to date"
-sudo apt update
-sudo apt upgrade
+#echo "ensuring Pi is up to date"
+#sudo apt update
+#sudo apt upgrade
 
 runv1=0
 runv2=0
