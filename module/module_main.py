@@ -48,6 +48,7 @@ async def collect_temp(lock, outs, data, period):
         temp = await ds18.read_temp()
         if len(temp) == 0:
             temp = [-300]
+            print("ERROR: something is wrong with the one-wire. No temps recieved.")
         async with lock:
             data["temp"].append((datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), temp))
         print("temps set")
