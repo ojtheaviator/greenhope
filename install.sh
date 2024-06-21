@@ -27,12 +27,12 @@ fi
 
 runv1=0
 runv2=0
-while [[ $runv1 -eq 0 && $runv2 -eq 0 ]]; do
+while [ $runv1 -eq 0 ] && [ $runv2 -eq 0 ]; do
     read -p "Are you running as the Hub or a Module (h/m) " hm
     case $hm in
         [Hh]* ) runv1=1; break;;
         [Mm]* ) runv2=1; break;;
-        * ) echo "Please answer h for hub or m for module.";;
+        * ) echo "Please answer h for Hub or m for Module.";;
     esac
 done
 
