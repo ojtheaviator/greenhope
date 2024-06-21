@@ -53,7 +53,7 @@ gpio -v
 # Bullseye branch system using the following command:
 git clone https://github.com/WiringPi/WiringPi
 cd WiringPi
-. /build
+./build
 gpio -v
 
 wget https://github.com/joan2937/lg/archive/master.zip
